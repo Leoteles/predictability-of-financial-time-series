@@ -1,0 +1,55 @@
+close all;
+clear all;
+clc;
+
+%Os resultados abaixo sao obtidos nas rotinas rbf_classico_janela.m
+% e bds_residuoGARCH_janela, cada uma em seu respectivo diretório
+disp('carregando séries...')
+load('erros_janela.mat');
+load('bds_resGARCH_janela.mat');
+
+
+clearvars -except w_serie e;close all;
+
+
+%Tamanho da janela utilizado para os cálculos acima
+Njanela = 1000;
+
+series_str = {'djia' 'sp500' 'ibov' 'peto' 'peth' 'petl' 'petc'};
+strfig = 'fig_bdsrbf_';
+
+for s = 1:length(e)
+    s
+    
+    w2 = w_serie{s};
+    %abs_w2 = abs(w_serie{s});
+    erros = e{s};
+    
+    clear pb direcao u2;
+    for t = 1:length(erros)
+        u2(t) = erros(t).u2;        
+        pb(t) = erros(t).pb;
+        direcao(t) = erros(t).direcao;
+
+    end
+    
+    %Mostra o eixo x relativo à série original
+    eixo_x = (1:length(w2))+Njanela;
+
+    figure;
+    subplot(2,1,1);
+    plot(eixo_x,w2);
+    title(series_str{s});
+    grid minor;
+    xlabel('Observações');
+    ylabel('W_2(últimas 1000 obs.)');
+    subplot(2,1,2);
+    plot(eixo_x,direcao);
+    grid minor;
+    xlabel('Observações');
+    ylabel('DIR(últimas 1000 obs.)');
+    str = strcat(strfig,series_str{s});
+    print('-djpeg',str);
+    [mean(pb) mean(direcao)]
+end
+

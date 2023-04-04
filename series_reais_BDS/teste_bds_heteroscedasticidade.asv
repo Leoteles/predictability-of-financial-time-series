@@ -1,0 +1,32 @@
+close all;
+clear all;
+clc;
+
+%Teste BDS com séries heteroscedasticas
+
+carrega_series;
+clearvars -except garch11
+
+Nsur = 50;
+
+randn('state',0);
+wgn = randn(3500,1);
+wgn_het1 = wgn .* randn(3500,1);
+wgn_het2 = [wgn(1000)*randn ];
+garch11 = garch11;
+
+series = {wgn wgn_het garch11};
+
+
+
+for i = 1:size(series,2)
+    serie = series{i};
+    
+    
+    tic
+    [estrutura, prev] = analiseBDS(serie,Nsur);
+    disp('PREV(serie)');prev
+    toc
+
+end
+
