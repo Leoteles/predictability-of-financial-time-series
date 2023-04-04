@@ -1,0 +1,52 @@
+close all;
+clear all;
+clc;
+
+randn('state',2);
+
+variancia = 0.01;
+tendencia = 0.0005;
+tendencia = 0.001;
+preco_inicial = 100;
+N = 500;
+
+%Retorno
+r = randn(N,1)* variancia;
+
+%Insere tendência
+r_tend = r + tendencia;
+
+p = ret2price(r,preco_inicial);
+p_tend = ret2price(r_tend,preco_inicial);
+
+figure;
+plot(p_tend,'-.b','LineWidth',2);
+hold on;
+plot(p,'-k','LineWidth',2);
+hold off;
+grid on;
+legend('Passeio aleatório com tendência','Passeio aleatório sem tendência','location','northwest');
+ylabel('preço');
+xlabel('dias');
+print -depsc2 'rw_tend';
+
+mean(price2ret(p_tend))
+
+mean(price2ret(p))
+
+
+%Compara o processo da media amostral de r e r_tend
+
+media_temporal_r = cumsum(r)./(1:N)';
+media_temporal_r_tend = cumsum(r_tend)./(1:N)';
+
+%Grafico que compara o processo da media amostral de rcl e rw
+figure;
+plot(media_temporal_r_tend,'-r');
+hold on;
+plot(media_temporal_r,'-b');
+hold off;
+legend('media temporal retorno com tendência','media temporal retorno');
+xlabel('amostras');
+ylabel('media');
+grid on;

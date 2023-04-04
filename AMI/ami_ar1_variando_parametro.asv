@@ -1,0 +1,48 @@
+close all;
+clear all;
+clc;
+
+randn('state',0);
+
+N = 3500;%Número de dados da série
+lambda = (0.2:0.1:0.7)';%Parâmetro autoregressivo
+%Calcula a estatística AMI para os 10 primeiros atrasos da série
+lags = 1:10;
+
+
+%A linha indica a série e a coluna indica o elemento da série
+y(1:length(lambda),1) = randn(length(lambda),1);%Valor inicial de todas as séries;
+
+%Calcula a série AR(1) para os parametros lambda
+for n = 2:N
+    y(:,n) = lambda .* y(:,n-1) + randn(length(lambda),1);
+end
+
+% for i = 1:9
+%     figure;
+%     autocorr(y(i,:));
+% end
+
+
+for i = 1:length(lambda)
+
+    %Calcula AMI para a série
+    [v,lag]=calculaAMI(y(i,:),y(i,:),lags);
+    ami(i,:) = v;%vetor coluna
+end
+
+%Plota apen para os varios lambda
+cores = ['b','g','r','c','m','y'];
+%cores = ['k','k','k','k','k','k'];
+espessura = linspace(1,6,length(lambda));
+figure;
+hold on;
+for i = 1:length(lambda)
+    plot(lag,ami(i,:),cores(i),'LineWidth',espessura(i));
+end
+grid minor;
+% axis([0 0.15 -0.1 0.8]);
+xlabel('\tau (atrasos)');
+ylabel('AMI');
+legend('\lambda = 0,2','\lambda = 0,3','\lambda = 0,4','\lambda = 0,5','\lambda = 0,8','\lambda = 0,7','Location','NorthEast');
+print -depsc 'fig_ami_ar1_variando_parametro';

@@ -1,0 +1,58 @@
+close all;
+clear all;
+clc;
+
+carrega_series;
+serie = wgn;
+clearvars -except serie;
+
+vetor_m = 1:2;
+
+%Obtem a integral de correlação
+tic
+[m,logC,logr] = calculaDimensaoGP(serie,vetor_m);
+logC = logC';
+toc
+
+
+
+% % figure;
+% % hold on;
+% % cores = ['b','g','r','c','m','y','k'];
+% % for i = 1:length(vetor_m)
+% %     plot(log(bins),log(np(:,i)),cores(i),'linewidth',i);
+% % end
+% % axis([-5 2.5 0 15]);
+% % legend('m=1','m=2','m=3','m=4','m=5','m=6','m=7','location','southeast');
+% % hold off;
+% % grid on;
+% % xlabel('log(\epsilon)');
+% % ylabel('log(C(\epsilon))');
+% % print -depsc 'fig_corrint_wgn_variando_m';
+% % 
+
+% % % % figure;
+% % % % hold on;
+% % % % cores = ['b','g','r','c','m','y','k'];
+% % % % for i = 1:length(vetor_m)
+% % % %     plot(log(bins),log(np(:,1).^(vetor_m(i))),cores(i),'linewidth',i);
+% % % % end
+% % % % % axis([-5 2.5 0 15]);
+% % % % legend('m=1','m=2','m=3','m=4','m=5','m=6','m=7','location','southeast');
+% % % % hold off;
+% % % % grid on;
+% % % % xlabel('log(\epsilon)');
+% % % % ylabel('log(C(\epsilon))');
+% % % % % print -depsc 'fig_corrint_wgn_variando_m2';
+% % % % 
+
+figure;
+plot(logr,logC(:,1),'r');
+hold on;
+plot(logr,logC(:,2),'b');
+%plot(np(:,1).^2,'g');
+%plot(np(:,1),'k');
+hold off;
+
+
+

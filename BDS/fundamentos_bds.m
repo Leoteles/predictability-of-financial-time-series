@@ -1,0 +1,77 @@
+close all;
+clear all;
+clc;
+
+carrega_series;
+serie = wgn;
+clearvars -except serie;
+
+vetor_m = 1:7;
+
+%Obtem a integral de correlação
+%Cada calculo demora 2 minutos
+% tic
+% [m,logC,logr] = calculaDimensaoGP(serie,vetor_m);
+% logC = logC';
+% toc
+
+load('integral_cor_m1_m7_wgn.mat');
+
+
+% % figure;
+% % hold on;
+% % cores = ['b','g','r','c','m','y','k'];
+% % for i = 1:length(vetor_m)
+% %     plot(log(bins),log(np(:,i)),cores(i),'linewidth',i);
+% % end
+% % axis([-5 2.5 0 15]);
+% % legend('m=1','m=2','m=3','m=4','m=5','m=6','m=7','location','southeast');
+% % hold off;
+% % grid on;
+% % xlabel('log(\epsilon)');
+% % ylabel('log(C(\epsilon))');
+% % print -depsc 'fig_corrint_wgn_variando_m';
+% % 
+
+% % % % figure;
+% % % % hold on;
+% % % % cores = ['b','g','r','c','m','y','k'];
+% % % % for i = 1:length(vetor_m)
+% % % %     plot(log(bins),log(np(:,1).^(vetor_m(i))),cores(i),'linewidth',i);
+% % % % end
+% % % % % axis([-5 2.5 0 15]);
+% % % % legend('m=1','m=2','m=3','m=4','m=5','m=6','m=7','location','southeast');
+% % % % hold off;
+% % % % grid on;
+% % % % xlabel('log(\epsilon)');
+% % % % ylabel('log(C(\epsilon))');
+% % % % % print -depsc 'fig_corrint_wgn_variando_m2';
+% % % % 
+
+r = 10.^logr;
+C = 10.^logC;
+
+%Calcula Cm de acordo com C1
+for i = 1:length(vetor_m)
+    C1m(:,i) = C(:,1).^i;
+end
+
+
+for i = 2:5%length(vetor_m)
+    figure;
+    hold on;
+    plot(log(r),log(C(:,i)),'-b','linewidth',2);
+    plot(log(r),log(C1m(:,i)),'or');
+    hold off;
+    grid on;
+    xlabel('log(\epsilon)','fontsize',14);
+    ylabel('log(C(\epsilon))','fontsize',14);
+    s1 = sprintf('C_%g(\\epsilon)', vetor_m(i));
+    s2 = sprintf('C_1(\\epsilon)^%g', vetor_m(i));
+    legend(s1,s2,'location','southeast');
+    axis([-7 5 -16 0]);
+    s3 = sprintf('fig_corrint_wgn_variando_m%g', vetor_m(i));
+    print('-depsc',s3);
+end
+
+
