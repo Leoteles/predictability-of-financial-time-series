@@ -1,0 +1,34 @@
+close all;
+clear all;
+clc;
+
+%distancia interpontos de um wgn
+
+carrega_series;
+
+
+serie = wgn(1:100);
+
+m = 2;%Dimensão de imersão
+%Comprimento do vetor serie
+N = length(serie);
+%Número de vetores
+nVec = N-m+1;
+
+%Define-se uma sequencia de vetores x(1),x(2),...x(N-m+1) em R^m
+%em que x(i) = [u(i),u(i+1),...,u(i+m-1)] e nVec = N-m+1
+for i = 1:nVec
+   y(:,i) = serie(i:i+m-1);
+end
+
+
+for i = 1:nVec
+    for j = 1:nVec
+        if i~=j
+            d(i,j) = max(abs(y(i)-y(j)));%Distancia
+            if (d<=epsilon(e))
+                vizinhos(i) = vizinhos(i) + 1;
+            end
+        end
+    end
+end

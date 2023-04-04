@@ -1,0 +1,34 @@
+close all;
+clear all;
+clc;
+
+
+carrega_series
+
+%serie = sin(1:100);
+serie = logistica;%(1:1000); %Demora um minuto para calcular essa série toda para um único m
+clearvars ** -except serie
+
+vetor_m = 2:2;
+
+% tic
+% [m1,logC1,logr1] = calculaDimensaoGP(serie,vetor_m);
+% logC1 = logC1';
+% toc
+% 
+% tic
+% [logC2,logr2]=Alexandros_calculaDimensao(serie,vetor_m);
+% toc
+% 
+% figure;
+% plot(logr1,logC1,'-b');
+% hold on;
+% %plot(logr2,logC2,'-r');
+% hold off;
+% grid minor;
+
+
+
+tic
+[eps,cn]=corrint(serie,vetor_m);
+toc

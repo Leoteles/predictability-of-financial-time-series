@@ -1,0 +1,36 @@
+close all;
+clear all;
+clc;
+
+
+carrega_series
+
+%Demora um minuto para calcular a logistica toda (3500) para um único m
+serie = logistica;%(1:1000);
+clearvars ** -except serie
+
+vetor_m = 2:2;
+
+tic
+[m1,logC,logr] = calculaDimensaoGP(serie,vetor_m);
+logC = logC';
+toc
+
+% 
+% cores = ['b','g','r','c','m','y'];
+% figure;
+% % plot(logr1,logC1,'-b');
+% hold on;
+% % plot(logr2,logC2,'-r');
+% for i = 1:length(vetor_m)
+%     plot(logr3,logC3(:,i),cores(i));
+% end
+% for i = 1:length(vetor_m)
+%     plot(log10(dcm{i}(1,:)),log10(dcm{i}(2,:)),cores(i));
+% end
+% hold off;
+% grid minor;
+
+
+figure;
+plot(logr,logC);

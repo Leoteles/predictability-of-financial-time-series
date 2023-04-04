@@ -1,0 +1,90 @@
+Séries obtidas de :
+Dow Jones Industrial Average - close - www.economagic.com - http://www.economagic.com/em-cgi/data.exe/sp/day-djitc
+S&P500 - close - www.economagic.com - http://www.economagic.com/em-cgi/data.exe/sp/day-sp500c
+IBOVESPA - www.bmfbovespa.com.br - http://www.bmfbovespa.com.br/indices/ResumoEvolucaoDiaria.aspx?Indice=IBOVESPA&idioma=pt-br
+PETR4 - Open High Low Close - www.bmfbovespa.com.br - http://www.bmfbovespa.com.br/shared/iframe.aspx?idioma=pt-br&url=http://www.bmfbovespa.com.br/pt-br/cotacoes-historicas/FormSeriesHistoricas.asp
+
+
+Os nomes dos arquivos indicam:
+nomedaserie_xxx_yyy_zzz
+xxx_yyy-periodo da série
+zzz_organização das colunas, geralmente: ano, mes, dia, cotação
+	em que cotação pode ser o=open
+				h=high
+				l=low
+				c=close
+
+
+
+Geração de serieAR1.mat:
+N = 3500;%Tamanho da série
+%Gera estrutura AR(1) com parametro a = 0.3 e variância unitária
+y(1) = randn();
+for t=2:N
+    y(t) = 0.3 * y(t-1) + randn;
+end
+y = y';
+
+
+
+Geração de serieRuidoBranco.mat:
+N = 3500;%Tamanho da série
+%Gera a série com variância unitária
+y = randn(N,1);
+
+Geração de serieLogistica.mat:
+N = 3500;%Tamanho da série
+%Gera a série
+lambda = 4;%Parâmetro de bifurcação do mapa
+y(1) = 0.1;%Valor inicial;
+for n = 2:N
+    y(n) = lambda * y(n-1) * (1-y(n-1));
+end
+y = (y)';
+
+Geração de serieARCH1.mat:
+%Cria-se um vetor de N posições representando uma estrutura ARCH(1)
+%com variância inicial unitária e parâmetro alfa1 = 0.3
+N = 3500;
+alfa0 = 1;
+alfa1 = 0.3;
+var_e(1) = alfa0;%Variância inicial
+e(1) = sqrt(var_e(1))*randn(1,1);
+y(1) = e(1);
+for t = 2:N
+    
+    %Processo da variância
+    var_e(t) = alfa0 + alfa1 * y(t-1)^2;
+    
+    %Inovação de variância var_e e média 0
+    e(t) = sqrt(var_e(t)) * randn(1,1);
+    
+    %Valor da série no instante t
+    y(t) = e(t);
+        
+end
+y = y';%y é, por convenção, vetor coluna
+
+Geração de serieGARCH11.mat:
+%Cria-se um vetor de N posições representando uma estrutura GARCH(1,1)
+N = 3500;
+alfa0 = 1;
+alfa1 = 0.3;
+beta1 = 0.3;
+var_e(1) = alfa0;%Variância inicial
+e(1) = sqrt(var_e(1))*randn(1,1);
+y(1) = e(1);
+for t = 2:N
+    
+    %Processo da variância
+    var_e(t) = alfa0 + alfa1 * y(t-1)^2 + beta1 * var_e(t-1);
+    
+    %Inovação de variância var_e e média 0
+    e(t) = sqrt(var_e(t)) * randn(1,1);
+    
+    %Valor da série no instante t
+    y(t) = e(t);
+        
+end
+y = y';%y é, por convenção, vetor coluna
+

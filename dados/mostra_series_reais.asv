@@ -1,0 +1,48 @@
+close all;
+clear all;
+clc;
+
+carrega_series;
+
+serie = djia;
+figure;
+semilogy(serie);
+xlabel('dias');
+ylabel('DJIA');
+grid on;
+print -depsc 'fig_djia';
+figure;
+plot(price2ret(serie)-mean(price2ret(serie)));
+xlabel('dias');
+ylabel('Retorno DJIA');
+grid on;
+print -depsc 'fig_djia_ret';
+
+serie = sp500;
+figure;
+semilogy(serie);
+xlabel('dias');
+ylabel('S&P500');
+grid on;
+print -depsc 'fig_sp500';
+figure;
+plot(price2ret(serie)-mean(price2ret(serie)));
+xlabel('dias');
+ylabel('Retorno S&P500');
+grid on;
+print -depsc 'fig_sp500_ret';
+
+serie = ibov;
+figure;
+semilogy(serie);
+xlabel('dias');
+ylabel('Ibovespa');
+grid on;
+print -depsc 'fig_ibov';
+figure;
+plot(price2ret(serie)-mean(price2ret(serie)));
+xlabel('dias');
+ylabel('Retorno S&P500');
+grid on;
+print -depsc 'fig_sp500_ret';
+

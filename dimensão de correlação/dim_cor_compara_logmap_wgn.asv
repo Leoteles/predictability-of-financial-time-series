@@ -1,0 +1,49 @@
+close all;
+clear all;
+clc;
+
+load('logmap_m2a8.mat');
+
+logC_logmap = logC;
+logr_logmap = logr;
+vetor_m_logmap = vetor_m;
+
+load('wgn_m2a8.mat');
+
+logC_wgn = logC;
+logr_wgn = logr;
+vetor_m_wgn = vetor_m;
+
+%confere se os vetores m são iguais
+isequal(vetor_m_wgn,vetor_m_logmap)
+
+%Estima a dimensão de correlação para todas as dimensões de imersão do
+%vetor m e plota os valores em função de m
+%limites para o scaling range
+inicio_logmap = [100 100 100 100 100 100 100];
+fim_logmap = [140 140 140 140 140 140 140];
+inicio_wgn = [100 110 120 130 140 140 140];
+fim_wgn = [150 150 150 150 150 150 150];
+for i = 1:length(vetor_m)
+    
+    fun = fit(logr_logmap(inicio_logmap(i):fim_logmap(i)),logC_logmap(inicio_logmap(i):fim_logmap(i),i),'poly1');
+    %Estimação da dimensão de correlação
+    dimensoes_logmap(i) = fun.p1;
+
+    fun = fit(logr_wgn(inicio_wgn(i):fim_wgn(i)),logC_wgn(inicio_wgn(i):fim_wgn(i),i),'poly1');
+    %Estimação da dimensão de correlação
+    dimensoes_wgn(i) = fun.p1;
+
+end
+
+figure;
+plot(vetor_m,dimensoes_logmap,'-b','LineWidth',2);
+hold on;
+plot(vetor_m,dimensoes_wgn,'--r','LineWidth',2);
+hold off;
+grid minor;
+xlabel('Dimensão de imersão m');
+ylabel('log(C(\epsilon))');
+legend('Mapa logístico','Ruído branco gaussiano','Location','NorthWest');
+%print -depsc 'fig_dim_cor_compara_logmap_wgn';
+
