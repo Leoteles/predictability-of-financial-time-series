@@ -1,0 +1,35 @@
+close all;
+clear all;
+clc;
+
+load 'serieRuidoBranco.mat';
+x = serieRuidoBranco;
+
+%h = 0 -> não rejeita a hipotese de que é normal
+%h = 1 -> rejeita a hipotese de que é normal
+%com intervalo de confiança de 95%
+
+%Lilliefors test
+[hli pli] = lillietest(x)
+%Jarque-Bera test
+[hjb pjb] = jbtest(x)
+%One-sample Kolmogorov-Smirnov test
+[hks pks] = kstest(x)
+
+
+%Para x uniforme
+x = rand(3500,1);
+
+%Valor da estatistica k
+%Valor limite c
+%Se k>c, rejeita a hipotese de gaussianidade
+%Lilliefors test
+[hli pli] = lillietest(x)
+%Jarque-Bera test
+[hjb pjb] = jbtest(x)
+%One-sample Kolmogorov-Smirnov test
+[hks,pks,kks,cks] = kstest(x)
+
+
+
+

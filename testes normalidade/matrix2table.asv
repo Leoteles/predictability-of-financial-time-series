@@ -1,0 +1,14 @@
+%Transforma uma matriz do matlab em uma tabela no formato LATEX
+%Recebe como parametro um vetor ou matriz e retorna o codigo LATEX para a
+%tabela correspondente
+function tabela = matrix2table(x)
+
+for i = 1:size(x,1)%Para todas as linhas
+    linha = sprintf('%d & ', x(i,:));
+    %Retira o ultimo & que sobrou
+    linha = linha(1:end-2);
+    %Finaliza  a linha com duas barras
+    %linha  = printf('%s ',linha);
+    str = sprintf('%s',linha)
+    tabela(i,:) = linha;
+end

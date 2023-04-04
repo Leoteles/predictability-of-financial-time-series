@@ -1,0 +1,15 @@
+Séries obtidas de :
+Dow Jones Industrial Average: Close	www.economagic.com
+S&P500: Close  				www.economagic.com
+PETR4: Open High Low Close		www.bovespa.com.br
+
+
+Os nomes dos arquivos indicam:
+nomedaserie_xxx_yyy_zzz
+xxx_yyy-periodo da série
+zzz_organização das colunas, geralmente: ano, mes, dia, cotação
+	em que cotação pode ser o=open
+				h=high
+				l=low
+				c=close
+

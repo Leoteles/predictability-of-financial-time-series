@@ -1,0 +1,71 @@
+clear all;
+clc;
+
+%% TESTHET DEMO [Need stats TB]
+load DemoDataset.mat
+% These are financial time series of the italian stock and mutual fund 
+% market. In the predictors there are the Fama and French factors. 
+% Residuals and fitted values are obtained by regressing mutual fund 
+% returns on the regressors.
+%% Simple Tests
+% - Breush-Pagan, Koenker specification test
+% Pvalues = TestHet(Residuals, Predictors, '-BPK')
+% % - White test
+% Pvalues = TestHet(Residuals, Predictors, '-W')
+% % - White special case test; needs fitted values
+% Pvalues = TestHet(Residuals, Predictors, '-Ws', FittedValues)
+
+Res = Residuals(:,1);
+X = Predictors(:,1);
+Whichtest = '-BPK';
+
+%function pVal = TestHet(Res, X, Whichtest, Yhat)
+
+% TESTHET Tests wether heteroskedasticity affects data. Need 'regstats' and 'chi2cdf' (Stat TB).
+%
+%   PVAL = TESTHET(RES, X, WHICHTEST, YHAT)
+%   Inputs:
+%   - Res: residuals obtained by regressing Y on x1, x2 etc...(1) It can be a numeric 'n-by-1' vector or 
+%          a 'n-by-p' matrix with 'p' residuals obtained from different regressions. The # of obs. is 'n'.
+%   - X: predictors suspected of causing heteroskedasticity. Not necessarily all those in (1). Same format as
+%        Res.
+%   - Whichtest: test chosen in format string. 
+%                a. Breush-Pagan, Koenker modification   -->  -BPK      (Breush-Pagan 1979; Koenker 1981)           
+%                b. White                                -->  -W        (White 1980b)
+%                c. White, Wooldridge special case       -->  -Ws       (White 1980b; Wooldridge 2006, p.286)
+%   [OPTIONAL]
+%   - Yhat: only for '-Ws' test. Fitted values from (1). Same format as Res.
+%
+%   Output:
+%   A '1-by-p' array with p-values.
+%
+%   EXAMPLE:
+%       1. Regress Y on x1, x2 --> regstats(Y, [x1 x2], 'linear', {'r', 'yhat'})
+%       2. Test with -Ws:
+%               TestHet(r,[x1, x2], '-Ws', yhat)
+%
+% See also REGSTATS, CHI2CDF, X2FX
+     Yhat = ones(size(Res,1)); % for check purposes
+
+     % STEP 1: inputs manipulation
+% ---------------------------
+Res2 = Res.^2;                                                      % Squared residuals
+
+Nseries = size(Res,2)                                              % # of series to test 
+pVal = NaN(1,Nseries);                                              % Preallocation
+
+% STEP 2: settings
+%-----------------
+model = 'linear'; Regressors = X;                                   % Default settings
+df = size(X,2); % degrees of freedom
+
+% STEP 3: p-values
+
+% 1. R^2res^2: res^2 on the regression terms
+Temp = regstats(Res2, Regressors, model, {'rsquare'});
+% 2. pVal = 1-cdf(LM statistic, df) from a Chi^2 distribution.
+%    Where LM statistic = R^2res^2 * #obs
+pVal = 1-chi2cdf(Temp.rsquare*nnz(~isnan(Res2)),df);
+
+
+pVal

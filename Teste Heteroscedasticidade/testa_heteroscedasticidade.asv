@@ -1,0 +1,72 @@
+clear all;
+close all;
+clc;
+randn('state',0);
+
+%Livro introductory econometrics - a modern approach; Woolridge
+
+teste = 'bp';
+teste='white';
+carrega_series;
+
+%Série dos resíduos
+serie = wgn;
+u = arch1;
+u = garch11;
+
+[H ,pValor,v,vCritico] = testaHeteroscedasticidade(serie,teste)
+[H ,pValor,v,vCritico]
+
+
+
+% [h,pValue,stat,cValue] = lbqtest(u);
+% [h,pValue,stat,cValue]
+% 
+% [h,pValue,stat,cValue] = lbqtest(u.^2);
+% [h,pValue,stat,cValue]
+% %Ruido branco gaussiano (série homoscedástica)
+% y = wgn;%Parte-se do modelo Random walk: y = u onde u ~ N(0,1) pg.256 
+% %E(y|y(k-1),y(k-2),...) = 0 -> yhat:y estimado
+% yhat = zeros(size(serie));
+% 
+% 
+% %Resíduo do modelo. No caso, a própria série
+% u = y - yhat;
+
+% % % %y é a matriz de regressores contendo os valores de y(k),y(k-1),...
+% % % xu2 = [ones(length(u2),1) xu2];%coluna com ones representa o regressor para delta0
+% % % 
+% % % %Aproxima-se o quadrado do resíduo por uma função linear de y(k)
+% % % %e testa-se se os parametros encontrados são iguais a zero pg. 256
+% % % %Mínimos quadrados
+% % % teta = inv(xu2'*xu2)*xu2'*u2;%Parametros estimados
+% % % 
+% % % %Cálculo do R^2
+% % % u2hat = xu2 * teta;
+% % % residuo_u2 = u2 - u2hat;
+% % % 
+% % % SSR = sum(residuo_u2.^2);%Soma dos quadrados dos resíduos(variancia dos residuos)
+% % % SST = sum((u2-mean(u2)).^2);%Soma dos desvios da série(variancia da série)
+% % % SSE = sum((u2hat-mean(u2)).^2);%mean(u2) == mean(u2hat); (variancia explicada pelo modelo)
+% % % 
+% % % %R^2 do modelo
+% % % rsquare = SSE / SST %ou 1 - (SSR/SST)
+% % % 
+% % % %LM statistic
+% % % LM = rsquare * length(u2)
+% % % 
+% % % %p-value
+% % % pVal = 1-chi2cdf(LM,K)
+% % % 
+% % % %Valor limite para o intervalo de confiaça de 95%
+% % % Vcritico = chi2inv(0.95,K)
+% % % 
+% % % x = 0:0.1:10;
+% % % y = chi2pdf(x,1);
+% % % figure;
+% % % plot(x,y)
+% % % 
+% % % y = chi2cdf(x,1);
+% % % hold on;
+% % % plot(x,y)
+% % % hold off;
