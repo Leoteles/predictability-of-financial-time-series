@@ -1,0 +1,116 @@
+close all;
+clear all;
+clc;
+warning off all;
+
+%Carrega as series
+carrega_series
+
+rdow = price2ret(djia);
+ribo = price2ret(ibov);
+rpeto = price2ret(peto);
+rpeth = price2ret(peth);
+rpetl = price2ret(petl);
+rpetc = price2ret(petc);
+rsp5 = price2ret(sp500);
+
+
+figure;
+[ACF, Lags, Bounds] = autocorr(rdow,[],2);
+stem(Lags,ACF,'MarkerFaceColor','green');
+hold on;
+plot(Lags,ones(size(Lags))*Bounds(1),'-b');
+plot(Lags,ones(size(Lags))*Bounds(2),'-b');
+hold off;
+axis([-0.2 20 -0.2 1.2]);
+title('');
+grid on;
+xlabel('Atrasos');
+ylabel('Auto-correlação');
+print -depsc 'fig_fac_ret_dow';
+[h,pValue,stat,cValue] = lbqtest(rdo,lags,alpha);
+resultados = [resultados; stat cValue];
+
+figure;
+[ACF, Lags, Bounds] = autocorr(rsp5,[],2);
+stem(Lags,ACF,'MarkerFaceColor','green');
+hold on;
+plot(Lags,ones(size(Lags))*Bounds(1),'-b');
+plot(Lags,ones(size(Lags))*Bounds(2),'-b');
+hold off;
+axis([-0.2 20 -0.2 1.2]);
+title('');
+grid on;
+xlabel('Atrasos');
+ylabel('Auto-correlação');
+print -depsc 'fig_fac_ret_sp5';
+
+figure;
+[ACF, Lags, Bounds] = autocorr(ribo,[],2);
+stem(Lags,ACF,'MarkerFaceColor','green');
+hold on;
+plot(Lags,ones(size(Lags))*Bounds(1),'-b');
+plot(Lags,ones(size(Lags))*Bounds(2),'-b');
+hold off;
+axis([-0.2 20 -0.2 1.2]);
+title('');
+grid on;
+xlabel('Atrasos');
+ylabel('Auto-correlação');
+print -depsc 'fig_fac_ret_ibo';
+
+figure;
+[ACF, Lags, Bounds] = autocorr(rpeto,[],2);
+stem(Lags,ACF,'MarkerFaceColor','green');
+hold on;
+plot(Lags,ones(size(Lags))*Bounds(1),'-b');
+plot(Lags,ones(size(Lags))*Bounds(2),'-b');
+hold off;
+axis([-0.2 20 -0.2 1.2]);
+title('');
+grid on;
+xlabel('Atrasos');
+ylabel('Auto-correlação');
+print -depsc 'fig_fac_ret_peto';
+
+figure;
+[ACF, Lags, Bounds] = autocorr(rpeth,[],2);
+stem(Lags,ACF,'MarkerFaceColor','green');
+hold on;
+plot(Lags,ones(size(Lags))*Bounds(1),'-b');
+plot(Lags,ones(size(Lags))*Bounds(2),'-b');
+hold off;
+axis([-0.2 20 -0.2 1.2]);
+title('');
+grid on;
+xlabel('Atrasos');
+ylabel('Auto-correlação');
+print -depsc 'fig_fac_ret_peth';
+
+figure;
+[ACF, Lags, Bounds] = autocorr(rpetl,[],2);
+stem(Lags,ACF,'MarkerFaceColor','green');
+hold on;
+plot(Lags,ones(size(Lags))*Bounds(1),'-b');
+plot(Lags,ones(size(Lags))*Bounds(2),'-b');
+hold off;
+axis([-0.2 20 -0.2 1.2]);
+title('');
+grid on;
+xlabel('Atrasos');
+ylabel('Auto-correlação');
+print -depsc 'fig_fac_ret_petl';
+
+figure;
+[ACF, Lags, Bounds] = autocorr(rpetc,[],2);
+stem(Lags,ACF,'MarkerFaceColor','green');
+hold on;
+plot(Lags,ones(size(Lags))*Bounds(1),'-b');
+plot(Lags,ones(size(Lags))*Bounds(2),'-b');
+hold off;
+axis([-0.2 20 -0.2 1.2]);
+title('');
+grid on;
+xlabel('Atrasos');
+ylabel('Auto-correlação');
+print -depsc 'fig_fac_ret_petc';

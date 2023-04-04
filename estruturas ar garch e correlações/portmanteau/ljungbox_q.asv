@@ -1,0 +1,28 @@
+%Calcula a estatistica q modificada por Ljung e Box (1978) para se realizar
+%o teste de portmanteau. Recebe como parâmetro a série.
+%O resultado é um vetor q(m) em que m é o número de atrasos até 25
+%q(end) é a estatística q calculada com o número de atrasos fornecido
+%para a função.
+%function q = ljungbox_q(vetor)
+function q = ljungbox_q(vetor)
+
+nLags = 25;
+nSTDs = 2;
+
+%Gera FAC do vetor criado
+[ACF,Lags,Bounds] = autocorr(vetor,nLags,nSTDs);
+ACF = ACF(2:end);%Desconsidera-se ACF(1), equivalente a FAC(0), ou atraso = 0
+
+%Calcula Q(m)
+T = length(vetor);
+N = [T - [1:nLags]]';
+somatorio = cumsum( (ACF.^2)./(N) );
+
+q = T * (T + 2) * cumsum((ACF.^2)./N);
+
+somatorio(1) = (ACF(1).^2)/(T-1);
+for k = 2:nLags
+    somatorio(k) = somatorio(k-1) + (ACF(k).^2)/(T-k);
+end
+q = T * (T+2) * somatorio;
+

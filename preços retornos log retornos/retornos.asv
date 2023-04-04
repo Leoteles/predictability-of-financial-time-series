@@ -1,0 +1,62 @@
+clear all;
+close all;
+clc;
+
+randn('state',3);
+
+%Numero de valores a serem gerados
+n = 100;
+%Varianica dos precos a serem gerados
+variancia = 0.1;
+
+[abertura, maxima, minima, fechamento] = gera_precos_rw(n,variancia);
+candle(maxima,minima,fechamento,abertura)
+
+figure;
+plot(fechamento);
+
+
+rcl = price2ret(fechamento);
+
+indices = linspace(1,length(rcl),100);
+indices = floor(indices);
+for i=2:length(indices)
+    inicio = indices(i-1);
+    fim = indices(i);
+    var_rcl(i-1) = var(rcl(inicio:fim));
+end
+figure;
+plot(rcl);
+figure;
+plot(var_rcl);
+title('Variancia ao longo do tempo para o logretorno');
+
+razao = (fechamento(2:end)./fechamento(1:end-1))-1;
+
+indices = linspace(1,length(razao),100);
+indices = floor(indices);
+for i=2:length(indices)
+    inicio = indices(i-1);
+    fim = indices(i);
+    var_razao(i-1) = var(razao(inicio:fim));
+end
+figure;
+plot(razao);
+figure;
+plot(var_razao);
+title('Variancia ao longo do tempo para o retorno');
+
+diferenca = fechamento(2:end)-fechamento(1:end-1);
+
+indices = linspace(1,length(diferenca),30);
+indices = floor(indices);
+for i=2:length(indices)
+    inicio = indices(i-1);
+    fim = indices(i);
+    var_diferenca(i-1) = var(diferenca(inicio:fim));
+end
+figure;
+plot(diferenca);
+figure;
+plot(var_diferenca);
+title('Variancia ao longo do tempo para a primeira diferença da série de preços');

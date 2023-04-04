@@ -1,0 +1,41 @@
+% Exemplo identificação de AR1 com Golub-Householder
+close all;
+clear all;
+clc; 
+
+%Cria-se um vetor de N posições representando uma estrutura AR1
+N = 1000;
+var_e = 1;
+e = sqrt(var_e)*randn(N,1);
+teta = -0.385;
+y(1) = 0;
+for t = 2:N
+    y(t) = teta * y(t-1) + e(t);
+end
+serie = y';%y é, por convenção, vetor coluna
+clear y;
+
+% plot(serie);
+
+[y,psi] = gera_regressores_AR(serie,2);
+N = size(psi,1);
+
+% Montar matriz de regressores
+%reg1=ones(N,1);		% constante
+reg2=psi(:,1); 		% y(k-1)
+reg3=psi(:,2);		% y(k-2)
+reg4=reg2.^2;		% y(k-1)^2
+reg5=reg2.*reg3;	% y(k-1)y(k-2)
+reg6=reg3.^2;		% y(k-2)^2
+
+psi=[reg1 reg2 reg3 reg4 reg5 reg6];
+vec=y;
+
+Psi=[psi vec];
+
+
+[A,err,piv]=myhouse(Psi,5)
+% numero de parametros no modelo final
+np=3;
+Psit=Psi(:,piv(1:np));
+teta=inv(Psit'*Psit)*Psit'*vec

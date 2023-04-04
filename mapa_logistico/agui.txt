@@ -1,0 +1,13 @@
+prof.,
+
+Rapidamente, em anexo, dois gráficos mostrando o teste de Ljung-Box para a FAC do mapa logistico(grafico da esq.) e FAC do quadrado da série(grafico da dir.). Para os dois casos, foram feitas simulações do mapa com condição inicial(x0) igual a 0,1 e lambda variando de 3,9999 a 4 em passos de 0,000001 e tamanho de cada série igual a 3500(mesma ordem de grandeza das financeiras). Valores acima da linha em 18,31 mostram correlações significativas na FAC. Percebo duas coisas interessantes:
+1) A série de retornos em que estou trabalhando é semelhante ao resultado do gráfico. Já discutimos as implicações disso no email anterior.
+2) A teste de Ljung-Box facilita a comparação dos resultados da FAC. Em apenas um gráfico, dá para avaliar a FAC do mapa em n valores(no caso 100) ao mesmo tempo.
+
+Procurarei fazer o teste para os outros mapas e em outras séries financeiras.
+ 
+
+abraço
+
+Leonardo Carvalho
+meuenderecoeletronico@yahoo.com.br
