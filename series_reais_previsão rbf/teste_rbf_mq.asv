@@ -1,0 +1,81 @@
+close all;
+clear all;
+clc;
+
+
+
+randn('state',0);
+N = 50;
+x = [1:N; sin(1:N)+5];
+
+yd = 1:N;
+yd = sin(yd) + 0.5*randn(size(yd));
+yd = yd';
+
+K = 3;%Número de neurônios
+[w,y] = mykmeans(x,K);
+
+c = w;%Define os centros
+%Calculo dos raios
+for i=1:K%Calcula a distancia entre os centros
+
+    %Inicializa a variável "menor distancia" com a distância ao próx. vetor
+    if (i~=K)%Quando o vetor i for o último, inicializa coma dist. entre ele e o primeiro
+        menor(i) = norm(c(:,i)-c(:,i+1));
+    else
+        menor(i) = norm(c(:,i)-c(:,1));
+    end
+    
+    %Encontra menor distancia do vetor i
+    for j=1:K%roda em todos os vetor j,
+        if (i~=j)%em que j é diferente de i
+            dist = norm(c(:,i)-c(:,j));
+            if (dist<menor(i))
+                menor(i) = dist;
+            end
+        end
+    end
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Procedimento 3: Raios diferentes, desvio padrao dos dados que participam
+%dos centros
+% %Calcula sigma, o raio dos neuronios
+for i=1:K
+    somatorio = 0;
+    N_x = 0;
+    for j=1:N
+        if (y(j)==i)
+            somatorio = somatorio + (norm(c(:,i)-x(:,j))^2);
+            N_x = N_x + 1;
+        end
+    end
+    N_x;
+    sigma3(i) =sqrt(somatorio/N_x);
+end
+%Define w1, igual aos centros e aos raios
+sigma = sigma3;
+w1 = [c; sigma];
+
+%Calcula entradas e saida da camada de saida da rede
+for i=1:K%Para todos os neuronios
+    for j=1:N%Para todos os dados de entrada
+        %Distancia do vetor de entrada i ao centro j
+        u = norm(x(:,j)-c(:,i));
+        %Saida da camada escondida GAUSSIANA
+        %Cada coluna j tem a resposta de cada neuronio i ao estimulo j
+        y1(i,j) = exp( -(u^2) / (2*sigma(i)^2) );
+    end
+end
+
+
+%Estimação dos parametros da segunda camada por MQ classico
+psi = y1';%Os dados devem estar em linhas e nao em colunas
+yd = yd';
+tetaMQ = inv(psi'*psi)*psi'*yd;
+yMQ = psi * tetaMQ;
+
+plot3(x(1,:),x(2,:),yd,'-r');
+hold on;
+plot3(x(1,:),x(2,:),yMQ,'.-g');
+grid on;
+hold off;

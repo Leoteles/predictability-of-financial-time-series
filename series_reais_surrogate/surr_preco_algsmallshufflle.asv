@@ -1,0 +1,46 @@
+close all;
+clear all;
+clc;
+
+carrega_series;
+
+%Parâmetros da rotina de analise de dados sub-rogados
+Nsur = 50;%Número de surrogates
+msg = 1;%Mostra mensagens
+fig = 1;%Mostra figuras
+est = 'ami';%Mostra todas as estatisticas
+
+rand('state',0);
+randn('state',0);
+
+
+algoritmo = 'ss';%Algoritmo utilizado
+
+series = {djia sp500 ibov peto peth petl petc};
+%Strings para o nome das figuras
+series_str = {'djia' 'sp500' 'ibov' 'peto' 'peth' 'petl' 'petc'};
+strfig = 'fig_preco_ss_';
+
+
+% % series = {rpetl rpetc};
+% % series_str = {'petl' 'petc'};
+
+
+for i = 1:size(series,2)
+    disp(series_str{i});
+    serie = series{i};
+    tic
+    [estrutura, prev] = analiseSurrogates(serie,Nsur,algoritmo,est,msg,fig);
+    disp('PREV(serie)');prev(1)
+    toc
+end
+
+
+ser = 1;%Incrementa o vetor dos nomes das séries
+for fig = 1:size(series,2)*3%Para cada figura da série
+    figure(fig);
+    str = strcat(strfig,series_str{ser},'_ami');
+    print('-depsc',str);
+    ser = ser + 1;
+end
+

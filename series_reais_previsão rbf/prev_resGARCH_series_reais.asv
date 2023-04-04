@@ -1,0 +1,51 @@
+close all;
+clear all;
+clc;
+
+%Previsão RBF com as séries reais
+
+%Modelagem GARCH e previsão RBF com seus resíduos
+
+carrega_series;
+
+
+series = {rdjia rsp500 ribov rpeto rpeth rpetl rpetc};
+%Strings para o nome das figuras
+series_str = {'djia' 'sp500' 'ibov' 'peto' 'peth' 'petl' 'petc'};
+
+
+% series = {rpetc};
+% series_str = {'petc'};
+
+
+for i = 1:size(series,2)
+    disp(series_str{i});
+    serie = series{i};
+
+    %Estima modelo garch
+    spec = garchset();
+    spec.Comment
+    [Coeff,Errors,LLF,Innovations,Sigmas,Summary] = garchfit(spec,serie);
+    
+    Coeff.ARCH
+    Coeff.GARCH
+    
+    %Calcula série passada por filtro GARCH estimado
+    serie = (Innovations./Sigmas);
+    disp('Modelagem RBF...');
+    RMSE_serie(i) = previsaoRBF(serie);
+    RMSE_RW_serie(i) = mean(sqrt((serie).^2));
+
+end
+
+for i = 1:size(series,2)
+    serie = series{i};
+    std_serie(i) = std(serie);
+    RMSE_serie_norm(i) = RMSE_serie(i) ./ std_serie(i);
+    RMSE_RW_serie_norm(i) = RMSE_RW_serie(i) ./ std_serie(i);
+end
+
+RMSE_serie = RMSE_serie'
+RMSE_RW_serie = RMSE_RW_serie'
+RMSE_serie_norm = RMSE_serie_norm'
+RMSE_RW_serie_norm = RMSE_RW_serie_norm'

@@ -1,0 +1,44 @@
+close all;
+clear all;
+clc;
+
+randn('state',0);
+rand('state',0);
+
+
+carrega_series;
+serie = logistica;
+clearvars -except serie;
+
+Nneuronios = 3;
+Ndelays = 2;%Número de atrasos (AR) a serem considerados para a criação do vetor de entrada TDNN
+Nval = 0.15;
+Ntest = 0.15;
+
+
+[xtr,ydtr,xval,ydval,xtest,ydtest] = preparaDados(serie,Ndelays,Nval,Ntest);
+
+% sigma = [0.4926
+%     0.4692
+%     0.4410
+%     0.4410
+%     0.4714];
+% rmse: 0.0121
+
+% 
+% limPop = repmat([-5.12 5.12],[3 1]);
+% [x, f] = myDE(@quadrado,1,limPop)
+
+limPop = repmat([1e-9 10],[Nneuronios 1]);
+maxGer = 10;
+[melhor_sigma, f] = myDE(@(sigma) erro_rbf(sigma,Nneuronios, xtr, ydtr, xval, ydval),1,limPop,maxGer)
+
+
+modelo = estimaModeloRBF(xtr,ydtr,Nneuronios,melhor_sigma*10);
+
+yval = previsaoRBF(modelo,xval);
+e = calculaErros(yval,ydval)
+
+ytest = previsaoRBF(modelo,xtest);
+e = calculaErros(ytest,ydtest)
+

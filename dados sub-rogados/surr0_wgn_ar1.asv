@@ -1,0 +1,38 @@
+close all;
+clear all;
+clc;
+
+carrega_series;
+
+%Parâmetros da rotina de analise de dados sub-rogados
+Nsur = 50;%Número de surrogates
+algoritmo = 'alg0';%Algoritmo utilizado
+msg = 1;%Mostra mensagens
+fig = 1;%Mostra figuras
+
+
+serie = wgn;
+tic
+analiseSurrogates(serie,Nsur,algoritmo,msg,fig)
+toc
+
+figure(1);
+print -depsc 'fig_surr0_wgn_d2';
+figure(2);
+print -depsc 'fig_surr0_wgn_sampen';
+figure(3);
+print -depsc 'fig_surr0_wgn_ami';
+
+close all;
+
+serie = ar1;
+tic
+analiseSurrogates(serie,Nsur,algoritmo,msg,fig)
+toc
+
+figure(1);
+print -depsc 'fig_surr0_ar1_d2';
+figure(2);
+print -depsc 'fig_surr0_ar1_sampen';
+figure(3);
+print -depsc 'fig_surr0_ar1_ami';

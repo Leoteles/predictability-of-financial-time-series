@@ -1,0 +1,17 @@
+
+clear all;
+clc;
+
+for Ndelays = 1:20
+    tic
+    teste;
+    erro_del(Ndelays) = e_test.pb;
+    toc
+end
+
+figure;
+plot(erro_del);
+
+%pb
+%gmrae
+%rmse

@@ -1,0 +1,30 @@
+function z = smallshuffle (serie,Nsur)
+
+serie =  serie(:);
+
+%Parâmetro de dispersão do algoritmo
+A = 1;
+
+for s = 1:Nsur
+    
+    %Vetor de índices da série original
+    i = (1:length(serie))';
+    %Vetor de perturbação
+    g = randn(length(serie),1);
+    %Vetor de índices perturbado
+    i2 = i + A * g;
+    %Ordena i2
+    [i2_ord,i2_] = sort(i2)
+    %Para todos os i_linha
+    
+    
+    for t = 1:length(serie)
+        i2 = i(t) + A*g(t)
+        
+        
+        
+    serie_sinal = randn(length(serie),1)>0;
+    serie_sinal = 2*serie_sinal -1;
+    serie_sinal = serie_sinal(:);
+    z(:,s) = serie .* serie_sinal;
+end

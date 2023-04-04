@@ -1,0 +1,95 @@
+close all;
+clear all;
+clc;
+
+
+% load('rpetc_resGARCH11.mat');
+% serie = serie(:);
+carrega_series;
+clearvars -except 'ar1'
+serie = ar1;
+
+Ndelays = 2;%Número de atrasos (AR) a serem considerados para a criação do vetor de entrada TDNN
+Nneuronios = 5;%Numero de centros da camada escondida RBF
+
+
+Ntr = 0.8;%Porcentagem dos dados disponíveis para treinamento
+
+
+
+%Gera vetores de entrada e saída
+[yd,x] = gera_regressores_AR(serie, Ndelays);
+
+%Último valor da série de treinamento
+fim_tr = floor(0.8*length(yd));
+
+%Dados de treinamento
+xtr = x(1:fim_tr,:);
+ydtr = yd(1:fim_tr);
+%Dados de Validação
+xval = x(fim_tr+1:end,:);
+ydval = yd(fim_tr+1:end);
+
+
+N = size(xtr,1);%Número de "vetores linha" de entrada.
+
+
+%Define os centros
+%Treinamento k-médias
+opts = statset('Display','off');
+[idx,ctrs] = kmeans(xtr,Nneuronios,...
+    'Distance','city',...
+    'Replicates',5,...
+    'Options',opts);
+c = ctrs;
+
+%Define os raios
+sigma = calcula_Raios(c,'menor');
+
+%Pesos da primeira camada
+% c
+% sigma
+
+%Calcula entradas e saida da camada de saida da rede
+for i=1:Nneuronios%Para todos os neuronios
+    for j=1:N%Para todos os dados de entrada
+        %Distancia do vetor de entrada j ao centro i
+        u = norm(xtr(j,:)-c(i,:));
+        %Saida da camada escondida GAUSSIANA
+        %Cada linha j tem a resposta de cada estimulo (dado de entrada) j ao neuronio i
+        y1(j,i) = exp( -(u^2) / (2*sigma(i)^2) );
+    end
+end
+
+
+y1 = [ones(N,1) y1];%K+1 elementos, por causa do bias (o bias é como um neuronio cuja saída é sempre um)
+
+
+%Estimação dos parametros da segunda camada por MQ classico
+psi = y1;%Lembrar que os dados devem estar em linhas e nao em colunas
+yd = ydtr;
+% size(psi)
+% size(yd)
+tetaMQ = inv(psi'*psi)*psi'*yd;
+% yMQ = psi * tetaMQ;
+
+w2 = tetaMQ;
+
+modelo.c = c;%Centros
+modelo.sigma = sigma;%Raios
+modelo.w2 = w2;%Pesos da segunda camada
+
+modeloRBF = modelo;
+
+%Erro de validação
+for i = 1:length(ydval)
+
+    yval_rbf = previsaoRBF(modeloRBF,xval(i,:));
+    
+    erro_rw(i) = ydval(i) - 0;
+    
+    erro_rbf(i) = ydval(i) - yval_rbf;
+    
+end
+
+MRAE_rbf = mean(abs(erro_rbf) ./ abs(erro_rw))

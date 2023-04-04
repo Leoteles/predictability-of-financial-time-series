@@ -1,0 +1,28 @@
+function erros = calculaErros(y,yd)
+
+erro = yd - y;
+erro_rw = yd - 0;
+
+
+%Root mean Square Error
+erros.rmse = sqrt(mean(erro.^2));
+%Root mean Square Error cometido pelo Random Walk
+erros.rmse_rw = sqrt(mean(erro_rw.^2));
+%Mean absolute Error
+erros.mae = mean(abs(erro));
+%Percent better
+erros.pb = 100 * sum((abs(erro)-abs(erro_rw))<0) / length(yd);
+%U2 de Theil
+erros.u2 = erros.rmse/erros.rmse_rw;
+%Mean Relative Absolute Error
+erros.mrae = mean(abs(erro) ./ abs(erro_rw));
+%Median Relative Absolute Error
+erros.mdrae = median(abs(erro) ./ abs(erro_rw));
+%Geometric Mean Relative Absolute Error
+erros.gmrae = geomean(abs(erro) ./ abs(erro_rw));
+
+%Acertou a direção (em porcentagem)
+erros.direcao = 100 * (sum((y>=0)&(yd>=0))+sum((y<0)&(yd<0))) / length(yd);
+
+%erros.erros = erro;
+end

@@ -1,0 +1,30 @@
+close all;
+clear all;
+clc;
+
+randn('state',0);
+rand('state',0);
+
+N = 100;%Numero de amostras para cada classe
+K = 2;%Numero de classes
+C1 = -5;%Centro 1
+C2 = 5;%Centro 2
+a = randn(2,N) + C1;
+b = randn(2,N) + C2;
+
+dados = [a b];%Monta vetor de dados
+
+%Mostra as classes separadas com cores diferentes
+figure;
+plot(a(1,:),a(2,:),'.r');
+hold on;
+plot(b(1,:),b(2,:),'.b');
+hold off;
+
+%Mostra o vetor passado para o kmedias, sem distinção de classes
+figure;
+plot(dados(1,:),dados(2,:),'.k');
+
+
+
+%Mapeamento da camada escondida

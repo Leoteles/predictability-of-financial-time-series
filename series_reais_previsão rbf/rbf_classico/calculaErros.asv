@@ -1,0 +1,34 @@
+function erros = calculaErros(y,yd)
+
+erro = yd - y;
+erro_rw = yd - 0;
+
+
+%Root mean Square Error
+erros.rmse = sqrt(mean(erro.^2));
+%Mean absolute Error
+erros.mae = mean(abs(erro));
+%Percent better
+erros.pb = 100 * sum((abs(erro)-abs(erro_rw))<0) / length(yd);
+%U2 de Thei
+% % % U2_rbf = RMSE_lin/RMSE_rw
+
+
+% % % %Se MRAE < 1, previsão melhor do que RW
+% % % MRAE_lin = mean(abs(erro_lin) ./ abs(erro_rw))
+% % % MRAE_rbf = mean(abs(erro_rbf) ./ abs(erro_rw))
+% % % 
+% % % MdRAE_lin = median(abs(erro_lin) ./ abs(erro_rw))
+% % % MdRAE_rbf = median(abs(erro_rbf) ./ abs(erro_rw))
+% % % 
+% % % GMRAE_lin = geomean(abs(erro_lin) ./ abs(erro_rw))
+% % % GMRAE_rbf = geomean(abs(erro_rbf) ./ abs(erro_rw))
+% % % 
+% % % RMSE_lin = sqrt(mean(erro_lin.^2))
+% % % RMSE_rbf = sqrt(mean(erro_rbf.^2))
+% % % RMSE_rw = sqrt(mean(erro_rw.^2))
+% % % 
+% % % U2_lin = RMSE_rbf/RMSE_rw
+% % % U2_rbf = RMSE_lin/RMSE_rw
+
+erros.erro = erro;

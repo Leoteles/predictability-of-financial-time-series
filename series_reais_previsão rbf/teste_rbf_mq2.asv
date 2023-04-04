@@ -1,0 +1,20 @@
+close all;
+clear all;
+clc;
+
+
+
+randn('state',0);
+N = 50;
+x = [1:N; sin(1:N)+5];
+
+yd = 1:N;
+yd = sin(yd) + 0.5*randn(size(yd));
+yd = yd';
+
+K = 3;%Número de neurônios
+
+[w1,w2] = myrbfMQ(x,yd,K)
+
+for i = 1:N
+    y = myrbfout();

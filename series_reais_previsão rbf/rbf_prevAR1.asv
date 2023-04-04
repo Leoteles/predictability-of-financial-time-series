@@ -1,0 +1,48 @@
+close all;
+clear all;
+clc;
+
+carrega_series;
+clearvars -except ar1;
+
+
+randn('state',0);
+rand('state',0);
+
+serie = ar1;
+
+Ndelays = 1;%Número de atrasos (AR) a serem considerados para a criação do vetor de entrada TDNN
+Nneuronios = 20;%Numero de centros da camada escondida
+eta = 0.1; %Taxa de aprendizado
+Nepocas = 50;
+
+%Gera vetores de entrada e saída
+[y,x] = gera_regressores_AR(serie, Ndelays);
+
+%Dados de entrada:
+xtr = x'; %treinamento
+xval = x'; %validação
+%Dados de saída: y desejado
+ydtr = y'; %treinamento
+ydval = y'; %validação
+
+
+%Treinamento
+[w1,w2] = myrbf(xtr,ydtr,Nneuronios,eta,Nepocas);
+
+%validação
+for i=1:size(xval,2)%Para todos os dados
+    x = xval(:,i);
+    yd = ydval(:,i);
+    [x2,y2] = myrbfout(x,w1,w2);
+    %Saída da rede (validação)
+    yvalRBF(i) = y2;
+    %Saída para outros modelos
+    yvalRW(i) = 0;
+    yvalAR1(i) = 0.3 * x(1);
+    
+end
+
+rmseRBF = mean(sqrt((yvalRBF-ydval).^2))
+rmseRW = mean(sqrt((yvalRW-ydval).^2))
+rmseAR = mean(sqrt((yvalAR1-ydval).^2))

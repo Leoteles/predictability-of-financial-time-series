@@ -1,0 +1,55 @@
+
+function sigma = calcula_Raios(c,alg,x,y)
+
+Nneu = size(c,1);
+
+%Calculo dos raios
+for i=1:Nneu%Calcula a distancia entre os centros
+
+    %Inicializa a variável "menor distancia" com a distância ao próx. vetor
+    if (i~=Nneu)%Quando o vetor i for o último, inicializa coma dist. entre ele e o primeiro
+        menor(i) = norm(c(:,i)-c(:,i+1));
+    else
+        menor(i) = norm(c(:,i)-c(:,1));
+    end
+    
+    %Encontra menor distancia do vetor i
+    for j=1:Nneu%roda em todos os vetor j,
+        if (i~=j)%em que j é diferente de i
+            dist = norm(c(:,i)-c(:,j));
+            if (dist<menor(i))
+                menor(i) = dist;
+            end
+        end
+    end
+end
+
+if strcmp(alg,'mediamenor')
+    %Procedimento 1: Todos os raios iguais
+    %Calcula sigma, o raio dos neuronios
+    sigma = ones(1,Nneu) * mean(menor);
+end
+if strcmp(alg,'menor')
+    %Procedimento 2: Raios diferentes, menor distancia entre os centros
+    %Calcula sigma, o raio dos neuronios
+    sigma = menor;
+end
+if strcmp(alg,'desvio')
+    %Procedimento 3: Raios diferentes, desvio padrao dos dados que participam
+    %dos centros
+    % %Calcula sigma, o raio dos neuronios
+    N = size(x,2);%Número de vetores de entrada
+    for i=1:Nneu
+        somatorio = 0;
+        N_x = 0;
+        for j=1:N
+            if (y(j)==i)
+                somatorio = somatorio + (norm(c(:,i)-x(:,j))^2);
+                N_x = N_x + 1;
+            end
+        end
+        %N_x
+        sigma(i) =sqrt(somatorio/N_x);
+    end
+end
+end

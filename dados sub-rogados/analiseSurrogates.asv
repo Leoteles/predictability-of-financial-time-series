@@ -1,0 +1,202 @@
+function [estrutura, prev] = analiseSurrogates(serie,Nsur,algoritmo,est,msg,fig)
+%function [] = analiseSurrogates(serie,Nsur,algoritmo,est,msg,fig)
+%-serie é a série a ser analisada
+%-Nsur é o número de séries sub-rogadas a serem geradas para a analise
+%-algoritmo é a seleção do alg. de geração de dados sub-rogados.
+%Pode ser 'alg0' para o algoritmo 0, 'alg1' para o algoritmo 1,
+%estrutura retorna os resultados dos cálculos das estatísticas na série
+%original e nos sub-rogados
+%-est é a estatística usada. Pode ser igual a 'todas','d2','sampen' ou 'ami'
+%-msg é um flag que, se igual a 1 mostra as mensagens de progressao dos
+%cálculos. Se for igual a 0, oculta as mensagens.
+%-img é um flag que ativa a exibição das figuras da analise.
+
+%Dimensão de imersão
+m = 5;
+
+%Gera surrogates
+%Se for PPS,...
+if strcmp(algoritmo,'PPS')
+    z = geraSurrogatesPPS(serie,Nsur,m);
+else
+    if strcmp(algoritmo,'sinal')%Se for sinal
+        z = sinalAleatorio(serie,Nsur);
+    else
+        if strcmp(algoritmo,'sinal')
+            z = sinalAleatorio(serie,Nsur);
+        else
+            z = geraSurrogates(serie,algoritmo,Nsur);
+        end
+    end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Início calculo D_2%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Calcula a estatística D2(dim. de corr.) para os Surrogates
+if strcmp(est,'todas') || strcmp(est,'d2')
+    
+    for n = 1:Nsur
+        %Mostra status atual do calculo
+        if (~mod(n,5) || n==Nsur) && msg == 1
+            str = sprintf('Calculando D2 para sub-rogados... %g%% concluido', (100*n)/Nsur);
+            disp(str);
+        end
+        
+        [M,DC,EPS0,CI] = calculaDimCorJudd(z(:,n),m);
+        dimcor_sur{n}.epsilon0 = DC{1}(1,:);
+        dimcor_sur{n}.d2 = DC{1}(2,:);
+    end
+    
+    %Calcula a estatistica D2 para a serie original
+    if msg == 1
+        disp('Calculando D2 para série original.');
+    end
+    [M,DC,EPS0,CI] = calculaDimCorJudd(serie,m);
+    dimcor_serie.epsilon0 = DC{1}(1,:);
+    dimcor_serie.d2 = DC{1}(2,:);
+    
+    if fig
+        figure;
+        hold on;
+        for i = 1:Nsur
+            hs = plot(log(dimcor_sur{i}.epsilon0),dimcor_sur{i}.d2,'-b');
+        end
+        h = plot(log(dimcor_serie.epsilon0),dimcor_serie.d2,'--r','LineWidth',4);
+        hold off;
+        grid minor;
+        xlabel('log(\epsilon_0)','fontsize',14);
+        ylabel('D_2','fontsize',14);
+        legend([hs h],'D_2 Série','D_2 Sub-rogados');
+    end
+    estrutura.d2.sur = dimcor_sur;
+    estrutura.d2.serie = dimcor_serie;
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Fim calculo D_2%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Início calculo SampEn%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Calcula a SampEn para os Surrogates
+if strcmp(est,'todas') || strcmp(est,'sampen')
+    %epsilon = 0.2 * std(serie);
+    m = 2;
+    
+    for n = 1:Nsur
+        %Mostra status atual do calculo
+        if (~mod(n,10) || n==Nsur) && msg == 1
+            str = sprintf('Calculando SampEn para sub-rogados... %g%% concluido', (100*n)/Nsur);
+            disp(str);
+        end
+        %É importante que cada Sampen seja calculada em relaçãpo ao devio
+        %padrão da sua série
+        epsilon = 0.2 * std(z(:,n));
+        %Como o resultado do sampen é calculado para m=0,1,...,m-1, deve-se chamar a
+        %função com m+1 e pegar o ultimo elemento do resultado. Esse será o
+        %sampen(m)
+        SampEn = calculaSampEn(z(:,n),m+1,epsilon);
+        SampEn_sur(n) = SampEn(end);
+    end
+    
+    %Calcula a estatistica SampEn para a serie original
+    if msg
+        disp('Calculando SampEn para série original.');
+    end
+    epsilon = 0.2 * std(serie);
+    %Como o resultado do sampen é calculado para m=0,1,...,m-1, deve-se chamar a
+    %função com m+1 e pegar o ultimo elemento do resultado. Esse será o
+    %sampen(m)
+    SampEn = calculaSampEn(serie,m+1,epsilon);
+    SampEn_serie = SampEn(end);
+    
+    %Compara a estatistica SampEn da serie e surrogates
+    Nbins = 20;
+    [n,x] = hist(SampEn_sur,Nbins);
+    %n = n / (sum(n) * (x(2)-x(1)));%Normaliza para que fique em função da probabilidade
+    n = n / (sum(n));%Normaliza para que fique em função da probabilidade
+    
+    if fig
+        figure;
+        bar(x,n,'FaceColor',[.89 .94 .9],'EdgeColor','k');
+        hold on;
+        line([SampEn_serie SampEn_serie],[0 max(n)*1.3],'Color','r','LineWidth',3);%Linha que indica SampEn para a série original
+        str = sprintf('SampEn Série Orignal: %g', SampEn_serie);
+        legend('Histograma SampEn Sub-rogados',str,'location','northeast');
+        %str = sprintf('SampEn(%g,\\epsilon,%g) para \\epsilon=%g',m,length(serie),epsilon);
+        str = sprintf('SampEn(%g,\\epsilon,%g)',m,length(serie));
+        xlabel(str,'fontsize',14);
+        %ylabel('Distribuição dos Dados Sub-rogados','fontsize',14);
+        ylabel('Número de ocorrências','fontsize',14);
+        hold off;
+    end
+    estrutura.sampen.sur = SampEn_sur;
+    estrutura.sampen.serie = SampEn_serie;
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Fim calculo SampEn%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Início calculo AMI%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Calcula a estatística AMI para os Surrogates
+if strcmp(est,'todas') || strcmp(est,'ami')
+    lags = 1:10;
+    for n = 1:Nsur
+        %Mostra status atual do calculo
+        if (~mod(n,10) || n==Nsur) && msg == 1
+            str = sprintf('Calculando AMI para sub-rogados... %g%% concluido', (100*n)/Nsur);
+            disp(str);
+        end
+        [AMI,lag]=calculaAMI(z(:,n),z(:,n),lags);
+        AMI_sur(:,n) = AMI';%vetores coluna para cada surrogate
+    end
+    
+    %Calcula a estatistica AMI para a serie original
+    if msg == 1
+        disp('Calculando AMI para série original.');
+    end
+    [AMI,lag]=calculaAMI(serie,serie,lags);
+    AMI_serie = AMI';%vetor coluna
+    
+    
+    %Compara a estatistica AMI da serie e surrogates
+    if fig
+        figure;
+        hold on;
+        for n = 1:Nsur
+            hs = plot(lags,AMI_sur(:,n),'-b');
+        end
+        h = plot(lags,AMI_serie,'--r','LineWidth',4);
+        legend([h hs],'AMI Série','AMI Sub-rogados');
+        xlabel('\tau','fontsize',14);
+        ylabel('AMI(\tau)','fontsize',14);
+        grid on;
+        hold off;
+    end
+    estrutura.ami.sur = AMI_sur;
+    estrutura.ami.serie = AMI_serie;
+end
+%PREV será a distância entre ami da série e da média dos sub-rogados
+%normalizado pelo desvio padrão dos sub-rogados
+for i = 1:length(lags)
+    media_AMI_sur(i,1) = mean(AMI_sur(i,:));
+    std_AMI_sur(i,1) = std(AMI_sur(i,:));
+end
+% AMI_serie
+% media_AMI_sur
+% std_AMI_sur
+prev = abs((AMI_serie - media_AMI_sur)) ./ std_AMI_sur;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Fim calculo AMI%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+end

@@ -1,0 +1,109 @@
+%Treina rede rbf com os parametros descritos abaixo
+%function [w1,w2] = myrbf(entradas,saidas,N_neuronios,eta,N_epocas)
+function [w1,w2] = myrbf(dados_tr,saida_tr,N_neuronios,eta,N_epocas)
+
+K = N_neuronios;%Numero de centros
+N_saidas = size(saida_tr,1);
+N_dados = size(dados_tr,2);
+N_dimensoes = size(dados_tr,1);
+%eta = 0.01;
+%N_epocas = 200;
+
+dados = dados_tr;
+
+tic
+[w,y] = mykmeans(dados,K);
+% % % % % %teta_inicial = 1;
+% % % % % %w = som_matlab(dados,5,10);
+% % % % % %K = 5*10;
+disp('tempo para kmeans')
+toc
+
+c = w;%Define os centros
+%Calculo dos raios
+for i=1:K%Calcula a distancia entre os centros
+
+    %Inicializa a variável "menor distancia" com a distância ao próx. vetor
+    if (i~=K)%Quando o vetor i for o último, inicializa coma dist. entre ele e o primeiro
+        menor(i) = norm(c(:,i)-c(:,i+1));
+    else
+        menor(i) = norm(c(:,i)-c(:,1));
+    end
+    
+    %Encontra menor distancia do vetor i
+    for j=1:K%roda em todos os vetor j,
+        if (i~=j)%em que j é diferente de i
+            dist = norm(c(:,i)-c(:,j));
+            if (dist<menor(i))
+                menor(i) = dist;
+            end
+        end
+    end
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Procedimento 1: Todos os raios iguais
+%Calcula sigma, o raio dos neuronios
+sigma1 = mean(menor)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Procedimento 3: Raios diferentes, menor distancia entre os centros
+%Calcula sigma, o raio dos neuronios
+sigma2 = menor
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Procedimento 3: Raios diferentes, desvio padrao dos dados que participam
+%dos centros
+% %Calcula sigma, o raio dos neuronios
+for i=1:K
+    somatorio = 0;
+    N_x = 0;
+    for j=1:N_dados
+        if (y(j)==i)
+            somatorio = somatorio + (norm(c(:,i)-dados(:,j))^2);
+            N_x = N_x + 1;
+        end
+    end
+    N_x
+    sigma3(i) =sqrt(somatorio/N_x);
+end
+sigma3
+%Define w1, igual aos centros e aos raios
+sigma = sigma3;
+w1 = [c; sigma];
+
+
+%Inicializa aleatoriamente os pesos da camada de saida
+%K+1 por causa do bias
+w2 = randn(N_saidas,K+1);
+
+dados = dados_tr;
+saida = saida_tr;
+%Treinamento Adaline
+tic
+for ep=1:N_epocas
+    %Vetor de dados em ordem aleatoria
+    ordem = randperm(size(dados,2));
+    dados = dados(:,ordem);
+    saida = saida(:,ordem);
+    erro_epoca(ep) = 0;
+    %Para todos os dados
+    for i=1:N_dados
+        x = dados(:,i);
+        yd = saida(:,i);
+        [x2,y2] = myrbfout(x,w1,w2);
+        %Corrige os pesos da rede
+        for neuronio=1:N_saidas
+            erro = yd(neuronio) - y2(neuronio);
+            for entrada=1:K+1%K+1 por causa do bias
+                w2(neuronio,entrada) = w2(neuronio,entrada) + eta * erro * x2(entrada);
+            end
+            erro_epoca(ep) = erro_epoca(ep) + erro.^2;
+        end
+    end
+end
+disp('tempo para adaline')
+toc
+erro_epoca = sqrt(erro_epoca)./(N_saidas*N_dados);
+figure;
+plot(erro_epoca);
+title('Erro quadrático médio a cada época')
+
+

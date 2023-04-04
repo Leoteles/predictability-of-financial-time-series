@@ -1,0 +1,92 @@
+close all;
+clear all;
+clc;
+
+carrega_series;
+
+msg = 1; fig = 1;
+
+Nsur = 5;%Número de surrogates
+algoritmo = 'alg1';%Algoritmo utilizado
+
+serie = ar1;
+
+serie = 1:4;
+z = geraSurrogates(serie,algoritmo,Nsur);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Início calculo SampEn%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Calcula a SampEn para os Surrogates
+epsilon = 0.2 * std(serie);
+m = 2;
+
+for n = 1:Nsur
+    %Mostra status atual do calculo
+    if (~mod(n,10) || n==Nsur) && msg == 1
+        str = sprintf('Calculando SampEn para sub-rogados... %g%% concluido', (100*n)/Nsur);
+        disp(str);
+    end
+    
+    %Como o resultado do sampen é calculado para m=0,1,...,m-1, deve-se chamar a
+    %função com m+1 e pegar o ultimo elemento do resultado. Esse será o
+    %sampen(m)
+    SampEn = calculaSampEn(z(:,n),m+1,epsilon);
+    SampEn_sur(n) = SampEn(end);
+end
+
+%Calcula a estatistica SampEn para a serie original
+if msg
+    disp('Calculando SampEn para série original.');
+end
+%Como o resultado do sampen é calculado para m=0,1,...,m-1, deve-se chamar a
+%função com m+1 e pegar o ultimo elemento do resultado. Esse será o
+%sampen(m)
+SampEn = calculaSampEn(serie,m+1,epsilon);
+SampEn_serie = SampEn(end);
+
+%Compara a estatistica SampEn da serie e surrogates
+Nbins = 20;
+[n,x] = hist(SampEn_sur,Nbins);
+%n = n / (sum(n) * (x(2)-x(1)));%Normaliza para que fique em função da probabilidade
+n = n / (sum(n));%Normaliza para que fique em função da probabilidade
+
+if fig
+    figure;
+    bar(x,n,'FaceColor',[.89 .94 .9],'EdgeColor','k');
+    hold on;
+    line([SampEn_serie SampEn_serie],[0 max(n)*1.3],'Color','r','LineWidth',3);%Linha que indica SampEn para a série original
+    str = sprintf('SampEn Série Orignal: %g', SampEn_serie);
+    legend('Hist. norm. dos Sub-rogados',str,'location','northeast');
+    str = sprintf('SampEn(%g,\\epsilon,%g) para \\epsilon=%g',m,length(serie),epsilon);
+    xlabel(str);
+    ylabel('Distribuição dos Dados Sub-rogados');
+    hold off;
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Fim calculo SampEn%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% 
+% for i = 1:Nsur
+%     figure;
+%     hist(z(:,i));
+% end
+
+
+% % comparar o histograma de z com o histograma da serie e seus momentos
+% % 
+% % comparar tambem a FAC. Mostrar isso na disser.???
+
+
+
+z(:,1) = serie(1:500);
+z(:,2) = serie(501:1000);
+z(:,3) = serie(1501:2000);
+z(:,4) = serie(2001:2500);
+z(:,5) = serie(2501:3000);
+z(:,6) = serie(3001:3500);
+

@@ -1,0 +1,198 @@
+close all;
+clear all;
+clc;
+% 
+% carrega_series;
+% 
+% rand('state',0);
+% randn('state',0);
+% 
+% series = {wgn};
+% series_str = {'wgn'};
+% 
+% 
+% Nval = 0.15;
+% Ntest = 0.15;
+% 
+% tic
+% for s = 1:size(series,2)
+%     disp(series_str{s});
+%     serie = series{s};
+%     %serie = serie(1:200);
+%         
+%     for Ndelays = 1:10%Número de atrasos (AR) a serem considerados para a criação do vetor de entrada TDNN
+%         
+%         
+%         [xtr,ydtr,xval,ydval,xtest,ydtest] = preparaDados(serie,Ndelays,Nval,Ntest);
+% 
+%         
+%         for Nneuronios = 1:30
+%             [s Ndelays Nneuronios]
+%             tic
+%             modelo = estimaModeloRBF(xtr,ydtr,Nneuronios);
+%             
+%             clear yval;
+%             for t = 1:length(ydval)
+%                 yval(t,:) = previsaoRBF(modelo,xval(t,:));
+%             end
+%             e = calculaErros(yval,ydval);
+%             resultados(s,Ndelays,Nneuronios).e1 = e;
+%             
+% 
+%             toc
+%         end
+%     end
+%     toc
+% end
+% save resultados_wgn.mat
+
+
+load('resultados_wgn.mat');
+
+for i = 1:size(resultados,1)
+    clear e_rmse e_pb e_gmrae;
+    for j = 1:size(resultados,2)
+        for k = 1:size(resultados,3)
+            e_rmse(j,k) = resultados(i,j,k).e1.rmse;
+            e_pb(j,k) = resultados(i,j,k).e1.pb;
+            e_gmrae(j,k) = resultados(i,j,k).e1.gmrae;
+        end
+    end
+    
+    
+    figure;
+    surf(e_rmse);
+    colormap(gray)
+    shading interp
+    %lighting gouraud
+%     %surf(e_gmrae);
+%     %surf(e_pb);
+    xlabel('Qtd. Neuronios','fontsize',14);
+    ylabel('Qtd. Atrasos','fontsize',14);
+    zlabel('RMSE','fontsize',14);
+    grid on;
+    str = strcat('fig_surf_rbf_',series_str{i});
+    print('-depsc',str);
+%     figure;
+%     plot(e_rmse);
+%     %plot(e_pb);
+%     xlabel('Qtd. Atrasos');
+%     ylabel('RMSE');
+    [C,x] = min(e_rmse);
+    [C,y] = min(C);
+    x = x(y);
+    melhor_delay_neuronio(i,:) = [x y];
+    melhor_desempenho(i) = C;
+end
+
+melhor_delay_neuronio
+
+% 
+% for s = 1:size(series,2)
+%     disp(series_str{s});
+%     serie = series{s};
+%     
+%     Ndelays = melhor_delay_neuronio(s,1);
+%     Nneuronios = melhor_delay_neuronio(s,2);
+%     
+%     [xtr,ydtr,xval,ydval,xtest,ydtest] = preparaDados(serie,Ndelays,Nval,Ntest);
+% 
+%     
+%     
+% %     %Transforma o problema em classificação
+% %     ydval = (ydval>=0)*2 - 1;
+% %     ydtr = (ydtr>=0)*2 - 1;
+% %     ydtest = (ydtest>=0)*2 - 1;
+%     
+%     
+%     %Concatena os dados de treinamento e validação
+% %    xtr2 = [xtr; xval];
+% %    ydtr2 = [ydtr; ydval];
+%     xtr2 = [xval];
+%     ydtr2 = [ydval];
+% %    xtr2 = [xtr];
+% %    ydtr2 = [ydtr];
+%     
+%     
+%     %xtr2 é definido logo acima. É diferente de xtr!!!!
+%     modelo = estimaModeloRBF(xtr2,ydtr2,Nneuronios);
+%     
+%     clear ytest;
+%     for t = 1:length(ydtest)
+%         ytest(t,:) = previsaoRBF(modelo,xtest(t,:));
+%     end
+%     %Calcula resultado no ytr2 para verificar que seus residuos
+%     %sao brancos
+%     clear ytr2;
+%     for t = 1:length(ydtr2)
+%         ytr2(t,:) = previsaoRBF(modelo,xtr2(t,:));
+%     end
+%     
+%     e = calculaErros(ytest,ydtest);
+%     erros(s,:) = [e.rmse e.u2 e.pb e.gmrae e.direcao];
+%    
+%     %Comparacao BDS antes e depois da modelagem
+%     %calculo do w2 antes da modelagem (nao se faz o pre porque demora e 
+%     %já está calculado em outra rotina)
+%     erro_rbf = ydtest - ytest;
+%     [estrutura, prev] = analiseBDS(serie,0);
+%     w2_serie(s) = estrutura.w_serie;
+%     %BDS com surrogate 0,... gerando w2 e prev
+%     [estrutura, prev] = analiseBDS(erro_rbf,50);
+%     w2_erro(s) = estrutura.w_serie;
+%     prev_erro(s) = prev;
+%     %Os residuos de treinamento são brancos?
+%     erro_tr2 = ydtr2 - ytr2;
+%     [estrutura, prev] = analiseBDS(erro_tr2,50);
+%     w2_erro_tr2(s) = estrutura.w_serie;
+%     prev_erro_tr2(s) = prev;
+%     
+%     %Estima modelo garch dos resíduos do modelo rbf
+%     spec = garchset();
+%     spec.Comment
+%     [Coeff,Errors,LLF,Innovations,Sigmas,Summary] = garchfit(spec,erro_rbf);
+%     %Calcula série passada por filtro GARCH estimado
+%     residuo_filtrado = (Innovations./Sigmas);
+%     
+%     [estrutura, prev] = analiseBDS(residuo_filtrado,50);
+%     w2_erro_filtrado(s) = estrutura.w_serie;
+%     prev_erro_filtrado(s) = prev;
+% 
+% 
+%     %Estima modelo garch dos resíduos DE TREINAMENTO!!! do modelo rbf
+%     spec = garchset();
+%     spec.Comment
+%     [Coeff,Errors,LLF,Innovations,Sigmas,Summary] = garchfit(spec,erro_tr2);
+%     %Calcula série passada por filtro GARCH estimado
+%     residuo_filtrado = (Innovations./Sigmas);
+%     
+%     [estrutura, prev] = analiseBDS(residuo_filtrado,50);
+%     w2_erro_tr2_filtrado(s) = estrutura.w_serie;
+%     prev_erro_tr2_filtrado(s) = prev;
+% 
+% 
+% end
+% 
+% %Normal  PB     DIR
+% 
+% %erros
+% matrix2table(erros)
+% 
+% sum(erros)
+% 
+% 
+% %os erros ainda são heteroscedásticos???
+% 
+% w = [w2_serie' w2_erro_tr2' w2_erro_tr2_filtrado' w2_erro' w2_erro_filtrado']
+% matrix2table(w)
+% 
+% 
+% 
+% p = [prev_erro_tr2' prev_erro_tr2_filtrado' prev_erro' prev_erro_filtrado']
+% matrix2table(p)
+% 
+% %Erro RMSE da validação cruzada
+% melhor_desempenho'
+
+
+
